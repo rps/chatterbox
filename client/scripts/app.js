@@ -54,7 +54,6 @@ var getMsgs = function(limit,currentRoom){
       // 'where': {'createdAt':{'$gte':{'type':'Date','iso':'2011-08-21T18:02:52.249Z'}}}
     },
     success: function(data) {
-      
 
       _.each(data.results,function(result, i){
         if(allRooms.indexOf(result.roomname) === -1){
@@ -64,7 +63,9 @@ var getMsgs = function(limit,currentRoom){
           result.text.indexOf('<script>') === -1 &&
           result.roomname === currentRoom &&
           result.text.indexOf('alert(') === -1) {
-            $('.main').append($('<p>').attr('class','messagelist').html("<b>" + result.username + "</b> </br> "  + result.text + " @ " + formatTime(result.createdAt)));
+            $('.main').append($('<div>').attr('class', 'separation'));
+            $('.main').append($('<a href="#">').attr('class',result.username + " separation").html("</br> <b>" + result.username + "</b> </br> "));
+            $('.main').append($('<p>').html(result.text + " @ " + formatTime(result.createdAt)));
             msgCount ++;
             myDate = Date.parse(data.results[0].createdAt);
             if (msgCount > 10) {
