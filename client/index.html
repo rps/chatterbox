@@ -20,6 +20,12 @@
       var messageListView = new MessageListView({el:$('.chatBox')});
       messageListView.render();
     });
+    var validate = function(value){
+      if(value && (value.indexOf('script')>-1 || value.indexOf('alert')>-1)){
+        return 'invalid';
+      }
+      return value;
+    }
     </script>
     <div class="rooms">
       <h1>Chatting Rooms</h1>
@@ -29,22 +35,26 @@
       <input type="text"/>
       <button class="sendMsg" type="submit">Send Message</button>
     </div>
+    <div class="roomsChange">
+      <input type="text" placeholder = 'choose a room' class = 'roomInput'/>
+      <button class="changeRoom" type="submit">Room Change</button>
+    </div>
+
     <div class="chatBox"></div>
+    
     <script id="message-template" type="text/template">
       <table>
         <tbody>
           <% _.each(messages, function(thing) {  %>
             <tr>
-              <td><%=thing['createdAt']%></td>
-              
+              <td><%=thing.createdAt%></td>
+              <td><%=validate(thing.username)%></td>
+              <td><%=validate(thing.text)%></td>
+              <td><%=thing.roomname%></td>
             </tr>
           <% }); %>
         </tbody>
       </table>
     </script>
-    
-
-
-    
   </body>
 </html>
