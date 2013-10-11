@@ -1,86 +1,135 @@
-$.fn.serializeObject = function() {
-  var o = {};
-  var a = this.serializeArray();
-  console.log(a);
-  $.each(a, function() {
-      if (o[this.name] !== undefined) {
-          if (!o[this.name].push) {
-              o[this.name] = [o[this.name]];
-          }
-          o[this.name].push(this.value || '');
-      } else {
-          o[this.name] = this.value || '';
-      }
-  });
-  return o;
-};
+
 
 
 var Message = Backbone.Model.extend({
-  url: 'https://api.parse.com/1/classes/chatterbox'
+
 });
 
-var Messages = Backbone.Collection.extend({
-  model: Message,
+var AllMessages = Backbone.Collection.extend({
+
+  model: Message, // no parens because Message is a class
   url: 'https://api.parse.com/1/classes/chatterbox',
-     initialize : function(){
-        console.log('tagfeed model is initialized');
-        this.on("change", function(){
-            console.log("An attribute has been changed");
-        });
-    }
-});
-
-var MessageListView = Backbone.View.extend({
-
-  initialize : function () {
-    this.listenTo(this.model, 'change', this.render);
+  
+  initialize: function(){
+    // this.fetchMessages();
   },
-
-  el : $(".chatBox"),
-
-  currentRoom : 'lobby',
-
-  render : function () {
-
+  
+  fetchMessages: function(){
     var that = this;
-    this.model.fetch({
-      success: function(messages){         
-        var template = _.template($('#message-template').html(), {messages: messages.models[0].get('results')}); // messages.models
-        that.$el.html(template);
+    this.fetch({
+      data: {
+        'order': '-createdAt',
+        'limit': 10
       },
-      data : {
-      'order': '-createdAt',
-      'limit': 20,
-      'roomname':that.currentRoom
+      success: function(model, data){
+        that.set(data.results.map(function(msg){
+          return new Message(msg);
+        }));
       }
     });
+  }
+
+
+
+});
+
+var MessageViewer = Backbone.View.extend({
+
+  initialize: function(){
+    this.report();
+    this.collection.on('add',this.con,this);
   },
 
-  events : {
-    'click .changeRoom': 'changeRoom',
-    'click .sendMsg': 'postText',
+  report: function(){
+    console.log(this.collection)
   },
 
-  changeRoom : function () {
-    this.currentRoom = $('.roomInput').val();
-    this.render();
-  },
-
-  postText : function () {
-    this.model.create({
-      'roomname':this.currentRoom,
-      'text':$('.chatInput').val(),
-      'username':window.location.search.slice(window.location.search.indexOf('=')+1)
-    });
+  con: function(e){
+    this.report();
   }
 
 });
 
-var Router = Backbone.Router.extend({
-  routes: {
-    '':'home'
-  }
-});
+var allMessages = new AllMessages();
+var messageViewer = new MessageViewer({collection:allMessages});
+allMessages.fetchMessages();
 
-// Backbone.history.start();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// var AllMessages = Backbone.Collection.extend({
+
+//   model: Message,
+//   url: 'http://arestfulapi.com',
+
+//   fetchMessages: function(){
+//     var that = this;
+//     this.fetch({
+//       data: {
+//         'order': '-createdAt',
+//         'limit': 10
+//       },
+//       success: function(model, data){
+//         // we want the array in data.results
+//         that.set(data.results) // this should trigger a change/set event ?
+//       }
+//     });
+//   }
+// });
+
+
+// var MessageViewer = Backbone.View.extend({
+
+//   initialize: function(){
+//     this.collection.on('set',this.log,this); // does not get called from above
+//   },
+
+//   log: function(e){
+//     console.log('triggered');
+//   }
+
+// });
+// Instantiation
+
+// var allMessages = new AllMessages();
+// var messageViewer = new MessageViewer({collection:allMessages});
+
+
+
+
+
+
+
+
+
+
+
+
