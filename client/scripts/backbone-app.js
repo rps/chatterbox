@@ -1,9 +1,13 @@
 
 
 
-var Message = Backbone.Model.extend({
+var newMessage = Backbone.Model.extend({
+  url: 'https://api.parse.com/1/classes/chatterbox'
 
-  tagName: 'li',
+})
+
+var Message = newMessage.extend({
+
   idAttribute :'objectId', // reads the message object's "objectId" attribute and saves ID as that
 
   initialize: function(){
@@ -29,7 +33,7 @@ var AllMessages = Backbone.Collection.extend({
 
   model: Message, // no parens because Message is a class
   url: 'https://api.parse.com/1/classes/chatterbox',
-  messagesOnScreen: 10,
+  messagesOnScreen: 15,
 
   initialize: function(){
     var that = this;
@@ -46,7 +50,6 @@ var AllMessages = Backbone.Collection.extend({
         'limit': this.messagesOnScreen
       },
       success: function(model, data){
-        console.log('refresh');
       }
     });
   },
@@ -62,6 +65,9 @@ var MessageViewer = Backbone.View.extend({
     this.collection.on('remove',this.remove,this);
     this.collection.on('add',this.add,this);
     this.addCount = 0;
+    this.roomname = 'lobby';
+    $('.inputbutton').on('click',this.sendMessage);
+    $('.roombutton').on('click',this.changeRoom);
   },
 
   add: function(e){
@@ -78,6 +84,12 @@ var MessageViewer = Backbone.View.extend({
     console.log('change');
   },
 
+  changeRoom: function(){
+    this.roomname = $('.roombox').val() || 'lobby';
+    console.log(this.roomname);
+    $('.roombox').val('');
+  },
+
   merge: function(e){
     console.log('merge');
   },  
@@ -91,6 +103,16 @@ var MessageViewer = Backbone.View.extend({
     this.$el.append(this.collection.models.map(function(item){
       return item.render();
     }));
+  },
+
+  sendMessage: function(){
+    var model = new newMessage({
+      text:$('.inputbox').val(),
+      username: window.location.search.slice(window.location.search.indexOf('=')+1) || 'Guest',
+      roomname: this.roomname
+    });
+    $('.inputbox').val('');
+    model.save();
   }
 });
 
