@@ -7,12 +7,13 @@ var newMessage = Backbone.Model.extend({
 })
 
 var Message = newMessage.extend({
-
-  idAttribute :'objectId', // reads the message object's "objectId" attribute and saves ID as that
+  
+  // reads the message object's "objectId" attribute and saves ID as that
+  idAttribute :'objectId', 
 
   initialize: function(){
 
-    // make date readable
+    // makes date readable
     var date = new Date((this.get('createdAt') || "")
       .replace(/-/g,"/")
       .replace(/[TZ]/g," "))
@@ -44,7 +45,6 @@ var AllMessages = Backbone.Collection.extend({
   fetchMessages: function(){
     var that = this;
     this.fetch({
-      // silent:true,
       data: {
         'order': '-createdAt',
         'limit': this.messagesOnScreen
@@ -66,8 +66,16 @@ var MessageViewer = Backbone.View.extend({
     this.collection.on('add',this.add,this);
     this.addCount = 0;
     this.roomname = 'lobby';
-    $('.inputbutton').on('click',this.sendMessage);
-    $('.roombutton').on('click',this.changeRoom);
+
+    var that = this;
+
+    $('.inputbutton').on('click',function(){
+      that.sendMessage(); 
+    });
+    $('.roombutton').on('click',function(){
+      that.changeRoom()
+    });
+
   },
 
   add: function(e){
@@ -86,7 +94,6 @@ var MessageViewer = Backbone.View.extend({
 
   changeRoom: function(){
     this.roomname = $('.roombox').val() || 'lobby';
-    console.log(this.roomname);
     $('.roombox').val('');
   },
 
